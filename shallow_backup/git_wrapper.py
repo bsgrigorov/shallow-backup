@@ -213,19 +213,19 @@ def git_add_all_commit_push(repo: git.Repo, dry_run: bool = False):
     :param git.repo repo: The repo
     :param str message: The commit message
     """
-    install_trufflehog_git_hook(repo)
+    # install_trufflehog_git_hook(repo)
     if repo.is_dirty():
         git_add_all_and_print_status(repo)
-        if not prompt_yes_no(
-            "Make a commit (with a trufflehog pre-commit hook)? Ctrl-C to exit",
-            Fore.YELLOW,
-        ):
-            return
+        # if not prompt_yes_no(
+        #     "Make a commit (with a trufflehog pre-commit hook)? Ctrl-C to exit",
+        #     Fore.YELLOW,
+        # ):
+        #     return
         if dry_run:
             print_yellow_bold("Dry run: Would have made a commit!")
             return
         print_yellow_bold("Making new commit...")
-        process = subprocess.run(["git", "commit", "--verbose"], cwd=repo.working_dir)
+        process = subprocess.run(["git", "commit", "-m", "update"], cwd=repo.working_dir)
         if process.returncode != 0:
             print_red_bold(
                 "Failed to make a commit. The two most likely reasons for this are:\n\t1. No commit message was provided.\n\t2. trufflehog detected secrets in the commit.\nPlease resolve ths issue and try again."
@@ -234,17 +234,17 @@ def git_add_all_commit_push(repo: git.Repo, dry_run: bool = False):
         else:
             print_yellow_bold("Successful commit.")
 
-        if prompt_yes_no(
-            "Push commit to remote? Did you check for secrets carefully? trufflehog is not perfect...",
-            Fore.YELLOW,
-        ):
-            if "origin" in [remote.name for remote in repo.remotes]:
-                print_path_yellow(
-                    "Pushing to remote:",
-                    f"{repo.remotes.origin.url}[origin/{repo.active_branch.name}]...",
-                )
-                repo.git.fetch()
-                repo.git.push("--set-upstream", "origin", "HEAD")
+        # if True(
+        #     "Push commit to remote? Did you check for secrets carefully? trufflehog is not perfect...",
+        #     Fore.YELLOW,
+        # ):
+        if "origin" in [remote.name for remote in repo.remotes]:
+            print_path_yellow(
+                "Pushing to remote:",
+                f"{repo.remotes.origin.url}[origin/{repo.active_branch.name}]...",
+            )
+            repo.git.fetch()
+            repo.git.push("--set-upstream", "origin", "HEAD")
     else:
         print_yellow_bold("No changes to commit...")
 
